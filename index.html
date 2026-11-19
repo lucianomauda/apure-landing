@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Margem por produto antes do pedido ao fornecedor | Apure!</title>
+  <meta name="description" content="Dois custos para o mesmo item na planilha de compras? Eu mostro quanto cada produto deixa de margem antes do pedido ao fornecedor. Escopo e preço fechados.">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%272%27 fill=%27%23183e36%27/%3E%3Ctext x=%2716%27 y=%2723%27 font-family=%27Georgia,serif%27 font-size=%2720%27 text-anchor=%27middle%27 fill=%27%23f6f4ec%27%3EA%3C/text%3E%3C/svg%3E">
+
+  <style>
+    :root {
+      --areia: #f6f4ec;
+      --nevoa: #e4ebe5;
+      --floresta: #183e36;
+      --salvia: #96b3a5;
+      --musgo: #4a6a5f;
+      --terracota: #a8481f;
+      --serif: Georgia, "Times New Roman", serif;
+      --recuo: 20px;
+      --espaco: 3rem;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-padding-top: 80px; }
+
+    body {
+      margin: 0;
+      font: 1rem/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--floresta);
+      background: var(--areia);
+    }
+
+    h1, h2, h3, p, ul, ol { margin: 0; }
+    h1, h2, h3, .marca { font-family: var(--serif); }
+
+    h1, h2, h3 {
+      font-weight: 500;
+      line-height: 1.09;
+      text-wrap: balance;
+    }
+
+    h1 {
+      max-width: 13ch;
+      font-size: clamp(2.75rem, 5.3vw, 4.8rem);
+      letter-spacing: -.045em;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 3.4vw, 3rem);
+      letter-spacing: -.035em;
+    }
+
+    h3 { font-size: 1.5rem; }
+    p { max-width: 65ch; }
+    a { color: inherit; }
+
+    :focus-visible {
+      outline: 3px solid currentColor;
+      outline-offset: 4px;
+    }
+
+    .cta:focus-visible { outline-color: var(--floresta); }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin-inline: auto;
+      padding-inline: var(--recuo);
+    }
+
+    .secao { padding-block: var(--espaco); }
+    .linha { border-top: 1px solid var(--salvia); }
+    .nevoa { background: var(--nevoa); }
+
+    .colunas, .divisao, .hero, .faixa {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .texto > * + * { margin-top: 1rem; }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: .65rem 1.2rem;
+      border-radius: 2px;
+      background: var(--terracota);
+      color: var(--areia);
+      font-weight: 650;
+      text-align: center;
+      text-decoration: none;
+      transition: background-color .18s ease;
+    }
+
+    @media (hover: hover) {
+      .cta:hover { background: #883b19; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cta { transition: none; }
+    }
+
+    .cabecalho {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--areia);
+      border-bottom: 1px solid var(--salvia);
+    }
+
+    .barra {
+      min-height: 63px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .6rem;
+    }
+
+    .marca {
+      font-size: 2.15rem;
+      font-weight: 700;
+      letter-spacing: -.07em;
+      line-height: 1;
+    }
+
+    .marca span { color: var(--terracota); }
+
+    .barra .cta {
+      min-height: 44px;
+      padding-inline: .8rem;
+      font-size: .875rem;
+    }
+
+    .hero { padding-block: var(--espaco); }
+    .abertura { max-width: 43rem; }
+
+    .subtitulo {
+      margin: 1.25rem 0 1.5rem;
+      max-width: 45ch;
+      font-size: 1.125rem;
+    }
+
+    .lojista {
+      margin-top: 1rem;
+      color: var(--musgo);
+    }
+
+    .foto {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      object-position: 50% 59%;
+      border-radius: 2px;
+    }
+
+    .beneficios { margin-top: 2rem; gap: 1.5rem; }
+
+    .beneficio {
+      flex: 1;
+      border-top: 1px solid var(--salvia);
+      padding-top: 1rem;
+    }
+
+    .numero {
+      display: block;
+      font: 500 3.3rem/1 var(--serif);
+      letter-spacing: -.045em;
+    }
+
+    .beneficio .numero { margin-bottom: .5rem; }
+    .beneficio p { margin-top: .65rem; }
+
+    .fundador {
+      background: var(--floresta);
+      color: var(--areia);
+    }
+
+    .fundador h2 { margin-bottom: .7rem; }
+    .fatos { gap: 1.6rem; }
+
+    .fato {
+      flex: 1;
+      padding-left: 1.25rem;
+      border-left: 2px solid var(--salvia);
+    }
+
+    .fato h3 { margin-bottom: .6rem; font-size: 1.3rem; }
+    .fato .numero { margin-bottom: .4rem; }
+    .passos, .compromissos { padding: 0; list-style: none; }
+
+    .passos li {
+      display: flex;
+      align-items: baseline;
+      gap: 1.4rem;
+      border-top: 1px solid var(--salvia);
+      padding-block: 1rem;
+    }
+
+    .passos .numero { min-width: 1ch; font-size: 2.6rem; }
+    .passos h3 { margin-bottom: .4rem; }
+    .oferta h2 { max-width: 16ch; }
+
+    .preco {
+      border: 1px solid var(--salvia);
+      border-top: 3px solid var(--floresta);
+      border-radius: 2px;
+      padding: clamp(1.3rem, 4vw, 2.5rem);
+    }
+
+    .valor { font: 500 2rem/1.2 var(--serif); }
+
+    .faq details { border-top: 1px solid var(--salvia); }
+    .faq details:last-child { border-bottom: 1px solid var(--salvia); }
+
+    .faq summary {
+      min-height: 52px;
+      padding: .9rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-weight: 650;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .faq summary::-webkit-details-marker { display: none; }
+
+    .faq summary::after {
+      content: "";
+      flex: 0 0 9px;
+      height: 9px;
+      margin-right: .4rem;
+      border: solid var(--floresta);
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .faq details[open] summary::after { transform: rotate(225deg); }
+    .faq details p { padding: 0 1.5rem 1.1rem 0; }
+
+    .compromissos li {
+      padding: .85rem 0 .85rem 1.4rem;
+      border-top: 1px solid var(--salvia);
+      position: relative;
+    }
+
+    .compromissos li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 1.48rem;
+      width: .6rem;
+      border-top: 2px solid var(--musgo);
+    }
+
+    .privacidade { font-size: .9375rem; color: var(--musgo); }
+    .faixa { align-items: flex-start; gap: 1.25rem; }
+    .rodape { padding-block: 1rem; }
+
+    .rodape .container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: .25rem 1.4rem;
+      font-size: .9rem;
+    }
+
+    .rodape a {
+      display: inline-flex;
+      align-items: center;
+      min-width: 44px;
+      min-height: 44px;
+      text-underline-offset: .22em;
+    }
+
+    @media (min-width: 768px) {
+      :root { --recuo: 32px; --espaco: 4rem; }
+
+      .hero, .divisao, .colunas, .faixa { flex-direction: row; }
+      .hero { align-items: center; justify-content: space-between; gap: 5%; }
+      .abertura { flex: 1; }
+      .foto { width: 43%; aspect-ratio: 1 / 1; }
+      .barra .cta { padding-inline: 1.1rem; }
+      .divisao { justify-content: space-between; gap: 5%; }
+      .divisao > :first-child { flex: 0 1 36%; }
+      .divisao > :last-child { flex: 1; min-width: 0; }
+      .faixa { align-items: center; justify-content: space-between; }
+      .faixa .cta { flex-shrink: 0; }
+      .rodape a { margin-left: auto; }
+    }
+
+    @page { size: A4; margin: 14mm; }
+
+    @media print {
+      :root { --recuo: 0; --espaco: 4mm; }
+      * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      body { font-size: 10pt; line-height: 1.35; }
+      .cabecalho { position: static; }
+      .barra { min-height: 10mm; }
+      .cabecalho .cta { display: none; }
+      .marca { font-size: 21pt; }
+      h1 { font-size: 30pt; }
+      h2 { font-size: 19pt; }
+      h3 { font-size: 13pt; }
+      .hero, .colunas, .faixa { flex-direction: row; align-items: center; gap: 6mm; }
+      .hero { justify-content: space-between; }
+      .foto { flex: 0 0 auto; width: 50mm; aspect-ratio: 1 / 1; }
+      .subtitulo { font-size: 11pt; margin: 3mm 0; }
+      .privacidade { font-size: 9pt; }
+      .cta { min-height: 0; padding: 2mm 3mm; font-size: 9pt; }
+      .beneficios, .fatos { align-items: flex-start; margin-top: 3mm; }
+      .numero, .passos .numero { font-size: 21pt; }
+      .divisao { display: block; }
+      .divisao > :first-child { margin-bottom: 3mm; }
+      .passos li, .compromissos li { padding-block: 2mm; }
+      .compromissos li::before { top: 4mm; }
+      .oferta h2 { max-width: none; }
+      .preco { padding: 3mm; }
+      .valor { font-size: 15pt; }
+      .texto > * + * { margin-top: 2mm; }
+      .faq details::details-content { display: block; }
+      .faq summary { min-height: 0; padding: 2mm 0 1mm; }
+      .faq summary::after { display: none; }
+      .faq details p { padding-bottom: 2mm; }
+      .rodape { padding-block: 2mm; }
+      .nevoa .container, .fundador .container, .linha .container { padding-inline: 4mm; }
+      .rodape a { min-height: 0; }
+      h2, h3, summary { break-after: avoid; }
+      .beneficio, .fato, .preco, details, .passos li,
+      .compromissos li, .faixa { break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="cabecalho">
+    <div class="container barra">
+      <div class="marca">Apure<span>!</span></div>
+      <a class="cta" href="obrigado.html">Conferir a margem do pedido</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="container hero" aria-labelledby="titulo">
+      <div class="abertura">
+        <h1 id="titulo">Confira a margem antes do pedido</h1>
+        <p class="subtitulo">Dois custos para o mesmo item? Eu mostro quanto cada produto deixa de margem. Também sou lojista. Escopo e preço fechados.</p>
+        <a class="cta" href="obrigado.html">Conferir a margem do pedido</a>
+        <p class="lojista">Também sou lojista: três lojas em Ponta Grossa.</p>
+      </div>
+
+      <img
+        class="foto"
+        src="hero.webp"
+        width="720"
+        height="1280"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        alt="Mesa nos fundos de uma loja de roupas com a planilha de compras impressa e dois custos diferentes circulados à caneta, calculadora verde e estoque ao fundo">
+    </section>
+
+    <section class="secao linha nevoa" aria-labelledby="beneficios">
+      <div class="container">
+        <h2 id="beneficios">O que você recebe</h2>
+        <div class="colunas beneficios">
+          <div class="beneficio">
+            <h3><span class="numero">1</span> grupo de produtos</h3>
+            <p>Eu olho o grupo que entra no próximo pedido ou precisa de reajuste.</p>
+          </div>
+          <div class="beneficio">
+            <h3><span class="numero">0</span> planilha nova para preencher</h3>
+            <p>Eu uso os registros que a loja já tem, com acesso só de leitura.</p>
+          </div>
+          <div class="beneficio">
+            <h3><span class="numero">30</span> minutos para conferir</h3>
+            <p>Você confere comigo de onde saiu o custo e como cheguei à margem de cada produto.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao fundador" aria-labelledby="fundador">
+      <div class="container divisao">
+        <div>
+          <h2 id="fundador">Quem faz a conta</h2>
+          <p>Eu sou Luciano Mauda. Também sou lojista.</p>
+        </div>
+        <div class="colunas fatos">
+          <div class="fato">
+            <h3><span class="numero">3</span> lojas de roupas em Ponta Grossa</h3>
+            <p>Sou lojista e faço pedido ao fornecedor como você.</p>
+          </div>
+          <div class="fato">
+            <h3><span class="numero">5+</span> anos em engenharia de dados</h3>
+            <p>Trabalho com engenharia de dados em empresas grandes.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao" aria-labelledby="processo">
+      <div class="container divisao">
+        <h2 id="processo">Como funciona</h2>
+        <ol class="passos" role="list">
+          <li>
+            <span class="numero" aria-hidden="true">1</span>
+            <div>
+              <h3>Você me conta qual decisão está em aberto</h3>
+              <p>A partir do pedido ou do reajuste, definimos qual grupo de produtos conferir.</p>
+            </div>
+          </li>
+          <li>
+            <span class="numero" aria-hidden="true">2</span>
+            <div>
+              <h3>Eu consulto os registros da loja</h3>
+              <p>Com acesso só de leitura, confiro os custos no seu sistema. Você não precisa preencher outra planilha.</p>
+            </div>
+          </li>
+          <li>
+            <span class="numero" aria-hidden="true">3</span>
+            <div>
+              <h3>Conferimos a conta juntos</h3>
+              <p>Eu entrego o relatório de margem do grupo e dedico 30 minutos para revisar os números com você.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="secao linha nevoa oferta" aria-labelledby="oferta">
+      <div class="container divisao">
+        <h2 id="oferta">2 custos para o mesmo item: eu mostro qual entrou na conta</h2>
+        <p>Se a planilha traz dois custos para o mesmo item, eu mostro no relatório qual custo entrou na conta e de onde ele veio. Assim, na hora da reposição, você pode conferir a margem junto com a quantidade vendida.</p>
+      </div>
+    </section>
+
+    <section class="secao" aria-labelledby="plano">
+      <div class="container divisao">
+        <h2 id="plano">Relatório de margem de entrada</h2>
+        <div class="preco texto">
+          <p class="valor">1 grupo de produtos · sob orçamento</p>
+          <p>Eu envio o escopo, o preço e o prazo por escrito antes de começar. O prazo depende do tamanho do grupo de produtos.</p>
+          <p>Depois da entrega, se fizer sentido para a loja, combinamos um acompanhamento mensal, também sob orçamento.</p>
+          <a class="cta" href="obrigado.html">Conferir a margem do pedido</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao linha faq" aria-labelledby="duvidas">
+      <div class="container divisao">
+        <h2 id="duvidas">Perguntas frequentes</h2>
+        <div>
+          <details open>
+            <summary>Quanto custa?</summary>
+            <p>Sob orçamento. Eu envio o escopo, o preço e o prazo por escrito antes de começar. Você só segue se concordar.</p>
+          </details>
+          <details>
+            <summary>Quanto tempo leva?</summary>
+            <p>Depende do tamanho do grupo de produtos. O prazo fica fechado na proposta, antes de começar.</p>
+          </details>
+          <details>
+            <summary>Vou ter que preencher mais uma planilha?</summary>
+            <p>Não. Trabalho com acesso só de leitura ao sistema da loja. Da sua parte, é a conversa inicial e 30 minutos para conferir o relatório.</p>
+          </details>
+          <details>
+            <summary>Quem acessa os dados da loja?</summary>
+            <p>Eu consulto os registros com o acesso que combinarmos. Ele é só de leitura. Nada é alterado no seu sistema.</p>
+          </details>
+          <details>
+            <summary>Isso substitui meu sistema de gestão ou meu contador?</summary>
+            <p>Não. Não substituo a contabilidade nem o sistema de gestão, não desenvolvo sistema administrativo e não prometo aumento de faturamento só com relatório.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao nevoa" aria-labelledby="compromissos">
+      <div class="container divisao">
+        <h2 id="compromissos">Meus 3 compromissos</h2>
+        <ul class="compromissos" role="list">
+          <li>Escopo, preço e prazo por escrito antes de começar.</li>
+          <li>Acesso só de leitura. Nada muda no seu sistema.</li>
+          <li>Cada número com a conta à mostra. Você confere comigo de onde ele saiu.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="secao" aria-labelledby="contato">
+      <div class="container divisao">
+        <h2 id="contato">Para conferir, a conversa começa no WhatsApp</h2>
+        <div class="texto">
+          <a class="cta" href="obrigado.html">Conferir a margem do pedido</a>
+          <p class="privacidade">Você fala direto comigo, Luciano. Seus dados só são usados para responder a este contato (LGPD).</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="secao nevoa linha" aria-labelledby="final">
+      <div class="container faixa">
+        <h2 id="final">Confira a margem antes do pedido</h2>
+        <a class="cta" href="obrigado.html">Conferir a margem do pedido</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape linha">
+    <div class="container">
+      <p>Apure! · por Luciano Mauda · Ponta Grossa-PR</p>
+      <a href="obrigado.html">Conferir a margem do pedido</a>
+      <span>2026</span>
+    </div>
+  </footer>
+
+  <script>
+    // Ao imprimir, inclua todas as respostas. Depois, restaure as escolhas do leitor.
+    const perguntas = document.querySelectorAll(".faq details");
+    let fechadas;
+
+    window.addEventListener("beforeprint", () => {
+      if (fechadas) return;
+      fechadas = Array.from(perguntas).filter(item => !item.open);
+      fechadas.forEach(item => { item.open = true; });
+    });
+
+    window.addEventListener("afterprint", () => {
+      (fechadas || []).forEach(item => { item.open = false; });
+      fechadas = undefined;
+    });
+  </script>
+</body>
+</html>
